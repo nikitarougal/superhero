@@ -1,11 +1,18 @@
 public class SuperheroMissionBatch implements Database.Batchable<SObject>, Database.Stateful {
-  // Store Superhero Mission IDs
+  // Store Superhero Mission Guilds IDs and Superhero Missions
   public List<Id> missionGuildIds = new List<Id>();
+  public List<Superhero_Mission__c> missions = new List<Superhero_Mission__c>();
 
   public Database.QueryLocator start(Database.BatchableContext context) {
-    // query to retrieve the Heros using the stored missionGuildIds.
-    System.debug('missionGuildIds: ' + missionGuildIds);
-    String query = 'SELECT Contact__r.Email, Guild__r.Id FROM Hero__c WHERE Guild__r.Id IN :missionGuildIds';
+    // Add the logic for checking if missions are public or not query to retrieve the Heros using the stored missionGuildIds
+    String query;
+    for (Superhero_Mission__c mission : missions) {
+      if (mission.Is_Public__c) {
+        query = 'SELECT Contact__r.Email FROM Hero__c';
+      } else {
+        query = 'SELECT Contact__r.Email FROM Hero__c WHERE Guild__c IN :missionGuildIds';
+      }
+    }
     return Database.getQueryLocator(query);
   }
 
@@ -23,6 +30,10 @@ public class SuperheroMissionBatch implements Database.Batchable<SObject>, Datab
 
     // Send the collected email messages.
     Messaging.SendEmailResult[] emailResults = Messaging.sendEmail(emails);
+
+    if (!emailResults[0].success) {
+      throw new CustomEmailException(emailResults[0].errors[0].message);
+    }
   }
 
   public void finish(Database.BatchableContext context) {
