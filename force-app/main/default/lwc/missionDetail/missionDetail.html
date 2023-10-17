@@ -1,0 +1,12 @@
+<template>
+  <div if:true={mission}>
+    <p>Name of Guild: {mission.Guild__r.Name}</p>
+    <p>Mission Subject: {mission.Subject__c}</p>
+    <p>Details: {mission.Details__c}</p>
+    <p>Reward: {mission.Reward__c}</p>
+    <p>Is Public: {mission.IsPublic__c}</p>
+  </div>
+  <div if:true={placeholderMessage}>
+    <p>{placeholderMessage}</p>
+  </div>
+</template>
