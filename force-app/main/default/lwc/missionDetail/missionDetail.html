@@ -1,12 +1,49 @@
 <template>
-  <div if:true={mission}>
-    <p>Name of Guild: {mission.Guild__r.Name}</p>
-    <p>Mission Subject: {mission.Subject__c}</p>
-    <p>Details: {mission.Details__c}</p>
-    <p>Reward: {mission.Reward__c}</p>
-    <p>Is Public: {mission.IsPublic__c}</p>
+  <div if:true={isLoaded}>
+    <lightning-card title="Mission Details">
+      <div class="slds-m-around_medium">
+        <p class="slds-text-heading_medium slds-p-vertical_x-small">
+          {superheroMission.guild}
+        </p>
+        <div class="slds-p-vertical_x-small">
+          <p class="slds-text-color_weak">Subject</p>
+          <p class="slds-text-title_bold">{superheroMission.subject}</p>
+        </div>
+        <div class="slds-p-vertical_x-small">
+          <p class="slds-text-color_weak">Details</p>
+          <p class="slds-text-title_bold">{superheroMission.details}</p>
+        </div>
+        <div class="slds-p-vertical_x-small">
+          <p class="slds-text-color_weak">Rank</p>
+          <p class="slds-text-title_bold">{superheroMission.rank}</p>
+        </div>
+        <div class="slds-p-vertical_x-small">
+          <hr class="slds-m-around_none" />
+        </div>
+        <div class="slds-p-vertical_x-small">
+          <p class="slds-text-color_weak">Reward</p>
+          <p class="slds-text-title_bold">${superheroMission.reward}</p>
+        </div>
+        <div class="slds-p-vertical_x-small">
+          <p class="slds-text-color_weak">Deadline</p>
+          <p class="slds-text-title_bold slds-text-color_error">
+            {superheroMission.deadline}
+          </p>
+        </div>
+        <div
+          if:true={showButton}
+          class="slds-p-vertical_x-small slds-align_absolute-center"
+        >
+          <lightning-button
+            variant={buttonVariant}
+            label={buttonLabel}
+            onclick={handleClick}
+          ></lightning-button>
+        </div>
+      </div>
+    </lightning-card>
   </div>
-  <div if:true={placeholderMessage}>
-    <p>{placeholderMessage}</p>
+  <div if:false={isLoaded} class="slds-align_absolute-center">
+    {requestToSelectAMissionLabel}
   </div>
 </template>

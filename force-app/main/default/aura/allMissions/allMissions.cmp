@@ -1,34 +1,48 @@
 <aura:component
-  implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+  implements="forceCommunity:availableForAllPageTypes"
   controller="AllMissionsController"
 >
-  <aura:attribute name="missions" type="Superhero_Mission__c[]" />
-
-  <!-- Add any other required attributes and handlers here -->
-
+  <aura:attribute name="missions" type="list" />
   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
 
-  <table class="slds-table slds-table_bordered slds-table_cell-buffer">
-    <thead>
-      <tr>
-        <th>Subject</th>
-        <th>Guild</th>
-        <th>Complexity Rank</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <aura:iteration items="{!v.missions}" var="mission">
-        <tr>
-          <td>{!mission.Subject__c}</td>
-          <td>{!mission.Guild__c}</td>
-          <td>{!mission.Complexity_Rank__c}</td>
-          <td>
-            {!mission.Mission_Assignments__r.length > 0 ?
-            mission.MissionAssignments__r[0].Status__c : null}
-          </td>
-        </tr>
-      </aura:iteration>
-    </tbody>
-  </table>
+  <lightning:messageChannel
+    type="MissionMessageChannel__c"
+    aura:id="MissionMessageChannel"
+    scope="APPLICATION"
+    onMessage="{!c.doInit}"
+  />
+
+  <!-- Header -->
+  <lightning:card title="All Missions">
+    <!-- Mission List -->
+    <div class="slds-p-around_medium">
+      <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Mission</th>
+            <th>Guild</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <aura:iteration items="{!v.missions}" var="mission">
+            <tr data-id="{!mission.id}" onclick="{!c.handleClick}">
+              <td>{!mission.rank}</td>
+              <td>{!mission.subject}</td>
+              <td>{!mission.guildName}</td>
+              <td>
+                <aura:if isTrue="{!not(empty(mission.status))}">
+                  <span class="slds-text-color_error">{!mission.status}</span>
+                  <aura:set attribute="else">
+                    <span class="slds-text-color_success">Available</span>
+                  </aura:set>
+                </aura:if>
+              </td>
+            </tr>
+          </aura:iteration>
+        </tbody>
+      </table>
+    </div>
+  </lightning:card>
 </aura:component>

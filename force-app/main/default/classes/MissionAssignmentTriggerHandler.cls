@@ -1,4 +1,7 @@
 public class MissionAssignmentTriggerHandler {
+  public class CustomEmailException extends Exception {
+  }
+
   public static void handleCompletion(
     List<Mission_Assignment__c> newAssignments,
     Map<Id, Mission_Assignment__c> oldMap
