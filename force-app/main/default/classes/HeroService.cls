@@ -1,4 +1,5 @@
 public without sharing class HeroService {
+  // get Hero info using current User Id
   public static Hero__c getHeroByUserId() {
     Id userId = UserInfo.getUserId();
     User userWithContact = [

@@ -1,4 +1,6 @@
 public class MissionAssignmentTriggerHandler {
+  private static boolean isExecuting = false;
+
   public class CustomEmailException extends Exception {
   }
 
@@ -6,33 +8,52 @@ public class MissionAssignmentTriggerHandler {
     List<Mission_Assignment__c> newAssignments,
     Map<Id, Mission_Assignment__c> oldMap
   ) {
-    Set<Id> missionIdsToUpdate = new Set<Id>();
+    if (isExecuting) {
+      return; // Exit if already executing to avoid recursion
+    }
 
-    // Iterate through new assignments to identify completed ones.
-    for (Mission_Assignment__c newAssignment : newAssignments) {
-      if (
-        newAssignment.Status__c == 'Completed' &&
-        oldMap.get(newAssignment.Id).Status__c != 'Completed'
-      ) {
-        missionIdsToUpdate.add(newAssignment.Mission__c);
+    isExecuting = true; // Set the flag to indicate execution
+    try {
+      Set<Id> missionIdsToUpdate = new Set<Id>();
+      Set<Id> heroIds = new Set<Id>();
+
+      // Iterate through new assignments to identify completed ones.
+      for (Mission_Assignment__c newAssignment : newAssignments) {
+        if (
+          newAssignment.Status__c ==
+          Constants.MISSION_ASSIGNMENT_STATUS_COMPLETED &&
+          oldMap.get(newAssignment.Id).Status__c != newAssignment.Status__c
+        ) {
+          missionIdsToUpdate.add(newAssignment.Mission__c);
+          heroIds.add(newAssignment.Hero__c);
+        }
       }
+
+      // Update other mission assignments as "Failed" for the same mission.
+      List<Mission_Assignment__c> otherAssignmentsToUpdate = [
+        SELECT Id, Status__c
+        FROM Mission_Assignment__c
+        WHERE
+          Mission__c IN :missionIdsToUpdate
+          AND Status__c = :Constants.MISSION_ASSIGNMENT_STATUS_IN_PROGRESS
+          AND Hero__c NOT IN :heroIds
+      ];
+
+      for (Mission_Assignment__c assignment : otherAssignmentsToUpdate) {
+        assignment.Status__c = Constants.MISSION_ASSIGNMENT_STATUS_FAILED;
+      }
+
+      update otherAssignmentsToUpdate;
+
+      // Send emails to mission creator.
+      sendEmails(missionIdsToUpdate);
+    } catch (Exception e) {
+      System.debug(
+        'Error processing Mission Assignment ' + ': ' + e.getMessage()
+      );
+    } finally {
+      isExecuting = false; // Reset the flag
     }
-
-    // Update other mission assignments as "Failed" for the same mission.
-    List<Mission_Assignment__c> otherAssignmentsToUpdate = [
-      SELECT Id, Status__c
-      FROM Mission_Assignment__c
-      WHERE Mission__c IN :missionIdsToUpdate AND Status__c != 'Completed'
-    ];
-
-    for (Mission_Assignment__c assignment : otherAssignmentsToUpdate) {
-      assignment.Status__c = 'Failed';
-    }
-
-    update otherAssignmentsToUpdate;
-
-    // Send emails to mission creator.
-    sendEmails(missionIdsToUpdate);
   }
 
   private static void sendEmails(Set<Id> superheroMissionIds) {

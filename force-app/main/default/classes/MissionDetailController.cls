@@ -60,7 +60,9 @@ public without sharing class MissionDetailController {
     List<Mission_Assignment__c> missionAssignments = [
       SELECT Id
       FROM Mission_Assignment__c
-      WHERE Hero__c = :heroId AND Status__c = 'In Progress'
+      WHERE
+        Hero__c = :heroId
+        AND Status__c = :Constants.MISSION_ASSIGNMENT_STATUS_IN_PROGRESS
     ];
 
     return missionAssignments.size() < 3;
@@ -86,11 +88,11 @@ public without sharing class MissionDetailController {
       WHERE
         Mission__c = :missionId
         AND Hero__c = :heroId
-        AND Status__c = 'In Progress'
+        AND Status__c = :Constants.MISSION_ASSIGNMENT_STATUS_IN_PROGRESS
       LIMIT 1
     ];
 
-    missionAssignment.Status__c = 'Completed';
+    missionAssignment.Status__c = Constants.MISSION_ASSIGNMENT_STATUS_COMPLETED;
     update missionAssignment;
 
     return missionAssignment.Id;

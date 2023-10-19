@@ -89,7 +89,7 @@ public class SuperheroMissionTest {
 
     System.assert(
       !isException,
-      'Email message should be sent without exeptions'
+      'Email message should be sent without exceptions'
     );
   }
 
@@ -120,7 +120,7 @@ public class SuperheroMissionTest {
 
     System.assert(
       !isException,
-      'Email message should be sent without exeptions'
+      'Email message should be sent without exceptions'
     );
   }
 }

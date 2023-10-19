@@ -85,6 +85,7 @@ public class TestDataService {
     user.LocaleSidKey = 'en_US';
     user.EmailEncodingKey = 'UTF-8';
     user.ContactId = contactId;
+
     return user;
   }
 }
